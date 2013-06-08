@@ -1,0 +1,34 @@
+#!/bin/bash
+
+SCRIPTDIR="config"
+CONFIGFILE="deployconfig.sh"
+
+# Settings for script -- these can be overridden in the deployconfig.sh file. 
+BACKUPDIR="backup"
+
+DIR=${PWD}
+CP="$DIR"
+while [ -n "$CP" ]
+do
+	if [ -d $CP/$SCRIPTDIR ]; then
+		if [ -f $CP/$SCRIPTDIR/$CONFIGFILE ]; then
+			echo "Found config file in: $CP/$SCRIPTDIR/$CONFIGFILE"
+			. $CP/$SCRIPTDIR/$CONFIGFILE
+			break
+		fi
+	fi
+	CP=${CP%/*}
+done
+
+# dump local database
+if [ ! -d $CP/$BACKUPDIR ]; then
+	mkdir $CP/$BACKUPDIR
+fi
+TIMESTAMP=`date +"%Y%m%d.%H%M"`
+FILENAME="local-$TIMESTAMP.sql.gz"
+DUMPFILE="$CP/$BACKUPDIR/$FILENAME"
+
+CONNECT_STRING = "-u $DEPLOY_DBLOCAL_USER -p$DEPLOY_DBLOCAL_PASSWORD $DEPLOY_DBLOCAL_DBNAME"
+mysqldump $CONNECT_STRING | gzip > $DUMPFILE
+scp $DUMPFILE $DEPLOY_USER@$DEPLOY_SERVER:$DEPLOY_DIR/
+ssh $DEPLOY_USER@$DEPLOY_SERVER "gunzip -c | mysql $CONNECT_STRING"

@@ -3,11 +3,9 @@
 SCRIPTDIR="config"
 CONFIGFILE="deployconfig.sh"
 
-# Settings for script -- these can be overridden in the project.drush.sh file. 
+# Settings for script -- these can be overridden in the deployconfig.sh file. 
 BACKUPDIR="backup"
 
-# Get current dir - symlinks can break this, see: http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in
-# DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 DIR=${PWD}
 CP="$DIR"
 while [ -n "$CP" ]
