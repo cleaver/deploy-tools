@@ -1,20 +1,21 @@
 #!/bin/bash
 
 SCRIPTDIR="config"
-DRUSHPROJ="deployconfig.sh"
+CONFIGFILE="deployconfig.sh"
 
 # Settings for script -- these can be overridden in the project.drush.sh file. 
 BACKUPDIR="backup"
 
 # Get current dir - symlinks can break this, see: http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR=${PWD}
 CP="$DIR"
 while [ -n "$CP" ]
 do
 	if [ -d $CP/$SCRIPTDIR ]; then
-		if [ -f $CP/$SCRIPTDIR/$DRUSHPROJ ]; then
-			echo "Found config file in: $CP/$SCRIPTDIR/$DRUSHPROJ"
-			. $CP/$SCRIPTDIR/$DRUSHPROJ
+		if [ -f $CP/$SCRIPTDIR/$CONFIGFILE ]; then
+			echo "Found config file in: $CP/$SCRIPTDIR/$CONFIGFILE"
+			. $CP/$SCRIPTDIR/$CONFIGFILE
 			break
 		fi
 	fi
