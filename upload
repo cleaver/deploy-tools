@@ -1,0 +1,34 @@
+#!/bin/bash
+
+SCRIPTDIR="config"
+DRUSHPROJ="deployconfig.sh"
+
+# Settings for script -- these can be overridden in the project.drush.sh file. 
+BACKUPDIR="backup"
+
+# Get current dir - symlinks can break this, see: http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+CP="$DIR"
+while [ -n "$CP" ]
+do
+	if [ -d $CP/$SCRIPTDIR ]; then
+		if [ -f $CP/$SCRIPTDIR/$DRUSHPROJ ]; then
+			echo "Found config file in: $CP/$SCRIPTDIR/$DRUSHPROJ"
+			. $CP/$SCRIPTDIR/$DRUSHPROJ
+			break
+		fi
+	fi
+	CP=${CP%/*}
+done
+
+RSSOURCE="$DIR/web/"
+RSDEST="$DEPLOY_USER@$DEPLOY_SERVER:$DEPLOY_DIR/"
+RSCOMMAND="rsync $1 $2 $3 --exclude .git/ -av -e ssh $RSSOURCE $RSDEST"
+#
+echo $RSCOMMAND
+$RSCOMMAND
+
+# fix directory protection
+if [ -n $DEPLOY_WPFIX]; then
+	ssh $DEPLOY_USER@$DEPLOY_SERVER "chmod 775 $DEPLOY_DIR;chmod -R 775 $DEPLOY_DIR/wp-content/uploads"
+fi
